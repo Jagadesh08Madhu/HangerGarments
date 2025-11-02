@@ -36,7 +36,7 @@ export default function Categories() {
                 viewport={{ once: true }}
                 className="text-center mb-12"
             >
-                <h2 className="text-4xl md:text-5xl font-bold font-bai-jamjuree uppercase tracking-wide text-gray-800">
+                <h2 className="text-4xl md:text-5xl font-bold font-italiana uppercase tracking-wide text-gray-800">
                     Shop by Category
                 </h2>
                 <p className="text-gray-900 font-instrument mt-3 text-sm md:text-base">
