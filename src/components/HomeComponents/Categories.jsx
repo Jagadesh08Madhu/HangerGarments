@@ -5,8 +5,11 @@ import oversized from "../../assets/categories/oversized.webp";
 import polo from "../../assets/categories/polo.webp";
 import hoodie from "../../assets/categories/hoodie.webp";
 import acidwash from "../../assets/categories/acidwash.webp";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Categories() {
+    const {theme , toggleTheme} = useTheme();
+
     // Animation variants for each card
     const cardAnim = {
         hidden: { opacity: 0, scale: 0.9, y: 50 },
@@ -27,7 +30,7 @@ export default function Categories() {
     ];
 
     return (
-        <section className="bg-white px-6 md:px-12 lg:px-20 py-16">
+        <section className={` px-6 md:px-12 lg:px-20 py-16 ${theme === "dark" ? "bg-black" :"bg-white"}`}>
             {/* Section Heading */}
             <motion.div
                 initial={{ opacity: 0, y: 40 }}
@@ -36,10 +39,10 @@ export default function Categories() {
                 viewport={{ once: true }}
                 className="text-center mb-12"
             >
-                <h2 className="text-4xl md:text-5xl font-bold font-italiana uppercase tracking-wide text-gray-800">
+                <h2 className={`text-4xl md:text-5xl font-bold font-italiana uppercase tracking-wide text-gray-800 ${theme === "dark" ? "text-white" :"text-black"} `}>
                     Shop by Category
                 </h2>
-                <p className="text-gray-900 font-instrument mt-3 text-sm md:text-base">
+                <p className={`text-gray-900 font-instrument mt-3 text-sm md:text-base ${theme === "dark" ? "text-white" :"text-black"}`}>
                     Discover styles that fit your vibe — explore our latest collections
                 </p>
             </motion.div>
