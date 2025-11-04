@@ -4,6 +4,8 @@ import banner1 from "../assets/bannerImages/banner1.webp"
 import banner2 from "../assets/bannerImages/banner2.webp"
 import banner3 from "../assets/bannerImages/banner3.webp"
 import Categories from "../components/HomeComponents/Categories"
+import BestSeller from "../components/HomeComponents/BestSeller"
+import NewArraivals from "../components/HomeComponents/NewArraivals"
 
 const banners = [
   {
@@ -69,7 +71,7 @@ export default function Home() {
   return (
     <div>
     <section
-      className="relative overflow-hidden font-instrument min-h-screen pb-20 pt-10 flex items-center justify-center"
+      className="relative pt-36 overflow-hidden font-instrument min-h-screen pb-20 flex items-center justify-center"
     >
       <motion.div
       key={banner.id}
@@ -214,6 +216,8 @@ export default function Home() {
       </div>
     </section>
     <Categories />
+    <BestSeller />
+    <NewArraivals />
     </div>
   )
 }

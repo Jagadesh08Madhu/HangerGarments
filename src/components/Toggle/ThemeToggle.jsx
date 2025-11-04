@@ -4,8 +4,6 @@ import { CiDark } from "react-icons/ci";
 import { useTheme } from "../../context/ThemeContext"; // ✅ correct import
 
 export default function ThemeToggle() {
-  // ❌ Wrong: const { darkMode, toggleTheme } = useTheme();
-  // ✅ Correct:
   const { theme, toggleTheme } = useTheme();
 
   return (
