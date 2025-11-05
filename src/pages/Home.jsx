@@ -71,7 +71,7 @@ export default function Home() {
   return (
     <div>
     <section
-      className="relative pt-36 overflow-hidden font-instrument min-h-screen pb-20 flex items-center justify-center"
+      className="relative pt-48 overflow-hidden font-instrument min-h-screen pb-20 flex items-center justify-center"
     >
       <motion.div
       key={banner.id}

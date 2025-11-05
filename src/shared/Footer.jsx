@@ -33,7 +33,7 @@ export default function Footer() {
     <footer
       className={`transition-colors duration-500 ${bgColor} ${textColor} border-t ${borderColor}`}
     >
-      <div className=" mx-auto px-5 lg:px-20 py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div className=" mx-auto px-5 lg:px-20 py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {/* About */}
         <div>
           <h3 className={`text-XL lg:text-3xl tracking-widest font-italiana font-semibold mb-4 ${headingColor}`}>

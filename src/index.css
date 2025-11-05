@@ -1,3 +1,8 @@
+@import 'node_modules/vanilla-infinite-marquee/infinite-marquee.scss';
+
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities;    
+
+
+

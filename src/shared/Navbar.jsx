@@ -16,6 +16,7 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const [navTop, setNavTop] = useState("top-[35px]");
 
   // ✅ Auto-detect current route to highlight correct nav link
   useEffect(() => {
@@ -38,9 +39,18 @@ export default function Navbar() {
     exit: { width: 0, opacity: 0, transition: { duration: 0.3 } },
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) setNavTop("top-0"); // when AboveNav hides
+      else setNavTop("top-[35px]"); // when AboveNav visible
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <section
-      className={`px-5 lg:px-20 py-5 transition-colors duration-300 border-b w-full fixed z-50 ${
+      className={`px-5 lg:px-20 py-5 ${navTop} transition-colors duration-300 border-b w-full fixed z-[60] ${
         theme === "dark"
           ? "bg-black text-white border-gray-800"
           : "bg-white text-black border-gray-200"
