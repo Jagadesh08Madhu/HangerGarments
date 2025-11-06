@@ -11,14 +11,27 @@ export default function Navbar() {
   const [shopOpen, setShopOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeLink, setActiveLink] = useState("");
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [navTop, setNavTop] = useState("top-[35px]");
 
-  // ✅ Auto-detect current route to highlight correct nav link
+  // ✅ Check login token on mount
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsLoggedIn(!!token);
+  }, [location.pathname]);
+
+  // ✅ Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
+  // ✅ Highlight active link
   useEffect(() => {
     if (location.pathname === "/") setActiveLink("Home");
     else if (location.pathname === "/about-us") setActiveLink("About Us");
@@ -27,6 +40,7 @@ export default function Navbar() {
     else setActiveLink("");
   }, [location.pathname]);
 
+  // ✅ Animation variants
   const dropdownAnim = {
     initial: { opacity: 0, y: -10 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.2 } },
@@ -41,8 +55,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 100) setNavTop("top-0"); // when AboveNav hides
-      else setNavTop("top-[35px]"); // when AboveNav visible
+      if (window.scrollY > 100) setNavTop("top-0");
+      else setNavTop("top-[35px]");
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -67,39 +81,30 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <ul className="hidden xl:flex items-center font-instrument tracking-widest gap-10">
-          {/* Home */}
-          <li
-            onClick={() => {
-              setActiveLink("Home");
-              navigate("/");
-            }}
-            className={`cursor-pointer px-3 py-1 rounded-md transition-all duration-200 ${
-              activeLink === "Home"
-                ? theme === "dark"
-                  ? "bg-gray-800 text-yellow-300"
-                  : "bg-gray-200 text-gray-900"
-                : "hover:text-gray-400"
-            }`}
-          >
-            Home
-          </li>
-
-          {/* About */}
-          <li
-            onClick={() => {
-              setActiveLink("About Us");
-              navigate("/about-us");
-            }}
-            className={`cursor-pointer px-3 py-1 rounded-md transition-all duration-200 ${
-              activeLink === "About Us"
-                ? theme === "dark"
-                  ? "bg-gray-800 text-yellow-300"
-                  : "bg-gray-200 text-gray-900"
-                : "hover:text-gray-400"
-            }`}
-          >
-            About Us
-          </li>
+          {["Home", "About Us", "Contact"].map((link) => (
+            <li
+              key={link}
+              onClick={() => {
+                setActiveLink(link);
+                navigate(
+                  link === "Home"
+                    ? "/"
+                    : link === "About Us"
+                    ? "/about-us"
+                    : "/contact"
+                );
+              }}
+              className={`cursor-pointer px-3 py-1 rounded-md transition-all duration-200 ${
+                activeLink === link
+                  ? theme === "dark"
+                    ? "bg-gray-800 text-yellow-300"
+                    : "bg-gray-200 text-gray-900"
+                  : "hover:text-gray-400"
+              }`}
+            >
+              {link}
+            </li>
+          ))}
 
           {/* Shop Dropdown */}
           <li
@@ -127,69 +132,36 @@ export default function Navbar() {
               {shopOpen && (
                 <motion.ul
                   {...dropdownAnim}
-                  className={`absolute top-8 left-0 rounded-md shadow-md py-2 w-40 border transition-colors duration-300 ${
+                  className={`absolute top-8 left-0 rounded-md shadow-md py-2 w-40 border ${
                     theme === "dark"
                       ? "bg-gray-900 border-gray-700"
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  <li
-                    onClick={() => navigate("/shop/men")}
-                    className={`px-4 py-2 ${
-                      theme === "dark"
-                        ? "hover:bg-gray-800 text-white"
-                        : "hover:bg-gray-200 text-black"
-                    } cursor-pointer`}
-                  >
-                    Men
-                  </li>
-                  <li
-                    onClick={() => navigate("/shop/women")}
-                    className={`px-4 py-2 ${
-                      theme === "dark"
-                        ? "hover:bg-gray-800 text-white"
-                        : "hover:bg-gray-200 text-black"
-                    } cursor-pointer`}
-                  >
-                    Women
-                  </li>
-                  <li
-                    onClick={() => navigate("/shop/kids")}
-                    className={`px-4 py-2 ${
-                      theme === "dark"
-                        ? "hover:bg-gray-800 text-white"
-                        : "hover:bg-gray-200 text-black"
-                    } cursor-pointer`}
-                  >
-                    Kids
-                  </li>
+                  {["Men", "Women", "Kids"].map((cat) => (
+                    <li
+                      key={cat}
+                      onClick={() => navigate(`/shop/${cat.toLowerCase()}`)}
+                      className={`px-4 py-2 cursor-pointer ${
+                        theme === "dark"
+                          ? "hover:bg-gray-800 text-white"
+                          : "hover:bg-gray-200 text-black"
+                      }`}
+                    >
+                      {cat}
+                    </li>
+                  ))}
                 </motion.ul>
               )}
             </AnimatePresence>
-          </li>
-
-          {/* Contact */}
-          <li
-            onClick={() => {
-              setActiveLink("Contact");
-              navigate("/contact");
-            }}
-            className={`cursor-pointer px-3 py-1 rounded-md transition-all duration-200 ${
-              activeLink === "Contact"
-                ? theme === "dark"
-                  ? "bg-gray-800 text-yellow-300"
-                  : "bg-gray-200 text-gray-900"
-                : "hover:text-gray-400"
-            }`}
-          >
-            Contact
           </li>
         </ul>
 
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
-          {/* Account Button */}
-          {isLoggedIn && (
+          {/* ✅ Account Section */}
+          {isLoggedIn ? (
+            // Logged in
             <div
               className="relative hidden xl:block"
               onMouseEnter={() => setAccountOpen(true)}
@@ -209,34 +181,59 @@ export default function Navbar() {
                 {accountOpen && (
                   <motion.ul
                     {...dropdownAnim}
-                    className={`absolute right-0 mt-2 rounded-md shadow-md py-2 w-40 border transition-colors duration-300 ${
+                    className={`absolute right-0 mt-2 rounded-md shadow-md py-2 w-40 border ${
                       theme === "dark"
                         ? "bg-gray-900 border-gray-700"
-                        : "bg-white border-gray-200 "
+                        : "bg-white border-gray-200"
                     }`}
                   >
                     <li
                       onClick={() => navigate("/my-orders")}
-                      className={`px-4 py-2 ${
+                      className={`px-4 py-2 cursor-pointer ${
                         theme === "dark"
                           ? "hover:bg-gray-800 text-white"
                           : "hover:bg-gray-200 text-black"
-                      } cursor-pointer`}
+                      }`}
                     >
                       My Orders
                     </li>
                     <li
-                      className={`px-4 py-2 ${
+                      onClick={handleLogout}
+                      className={`px-4 py-2 cursor-pointer ${
                         theme === "dark"
                           ? "hover:bg-gray-800 text-white"
                           : "hover:bg-gray-200 text-black"
-                      } cursor-pointer`}
+                      }`}
                     >
                       Logout
                     </li>
                   </motion.ul>
                 )}
               </AnimatePresence>
+            </div>
+          ) : (
+            // Not logged in
+            <div className="hidden xl:flex gap-4 font-instrument tracking-widest">
+              <button
+                onClick={() => navigate("/login")}
+                className={`px-5 py-2 rounded-md border transition ${
+                  theme === "dark"
+                    ? "border-gray-700 hover:bg-gray-800"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className={`px-5 py-2 rounded-md transition ${
+                  theme === "dark"
+                    ? "bg-purple-600 hover:bg-purple-700 text-white"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+              >
+                Sign Up
+              </button>
             </div>
           )}
 
@@ -283,10 +280,10 @@ export default function Navbar() {
               {menuOpen ? (
                 <motion.span
                   key="close"
-                  initial={{ opacity: 0, rotate: -90, scale: 0.8 }}
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  exit={{ opacity: 0, rotate: 90, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.3 }}
                   className="absolute"
                 >
                   <FiX />
@@ -294,10 +291,10 @@ export default function Navbar() {
               ) : (
                 <motion.span
                   key="menu"
-                  initial={{ opacity: 0, rotate: 90, scale: 0.8 }}
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  exit={{ opacity: 0, rotate: -90, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  initial={{ opacity: 0, rotate: 90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: -90 }}
+                  transition={{ duration: 0.3 }}
                   className="absolute"
                 >
                   <FiMenu />
@@ -308,17 +305,18 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ✅ Mobile Menu with Active Tabs */}
+      {/* ✅ Mobile Menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
             {...mobileMenuAnim}
-            className={`xl:hidden overflow-hidden min-h-screen absolute top-full left-0 w-full flex flex-col items-center gap-5 py-5 font-instrument tracking-widest border-t transition-all duration-300 ${
+            className={`xl:hidden overflow-hidden min-h-screen absolute top-full left-0 w-full flex flex-col items-center gap-5 py-5 font-instrument tracking-widest border-t ${
               theme === "dark"
                 ? "bg-black text-white border-gray-800"
                 : "bg-white text-black border-gray-200"
             }`}
           >
+            {/* Menu links */}
             {["Home", "About Us", "Contact"].map((link) => (
               <span
                 key={link}
@@ -345,59 +343,43 @@ export default function Navbar() {
               </span>
             ))}
 
-            {/* Mobile Shop Dropdown */}
+            {/* Shop Dropdown (Mobile) */}
             <div className="w-full px-5">
               <button
                 className="cursor-pointer flex items-center gap-2 w-full"
                 onClick={() => setShopOpen(!shopOpen)}
               >
-                Shop
-                <span className="text-sm">{shopOpen ? "▲" : "▼"}</span>
+                Shop <span className="text-sm">{shopOpen ? "▲" : "▼"}</span>
               </button>
               <AnimatePresence>
                 {shopOpen && (
                   <motion.ul
                     {...dropdownAnim}
-                    className={`mt-2 border-t transition-colors duration-300 ${
+                    className={`mt-2 border-t ${
                       theme === "dark"
                         ? "bg-gray-900 border-gray-700"
                         : "bg-white border-gray-300"
                     }`}
                   >
-                    <li
-                      onClick={() => {
-                        navigate("/shop/men");
-                        setMenuOpen(false);
-                      }}
-                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-                    >
-                      Men
-                    </li>
-                    <li
-                      onClick={() => {
-                        navigate("/shop/women");
-                        setMenuOpen(false);
-                      }}
-                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-                    >
-                      Women
-                    </li>
-                    <li
-                      onClick={() => {
-                        navigate("/shop/kids");
-                        setMenuOpen(false);
-                      }}
-                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-                    >
-                      Kids
-                    </li>
+                    {["Men", "Women", "Kids"].map((cat) => (
+                      <li
+                        key={cat}
+                        onClick={() => {
+                          navigate(`/shop/${cat.toLowerCase()}`);
+                          setMenuOpen(false);
+                        }}
+                        className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                      >
+                        {cat}
+                      </li>
+                    ))}
                   </motion.ul>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* My Account (Mobile) */}
-            {isLoggedIn && (
+            {/* ✅ Account Section (Mobile) */}
+            {isLoggedIn ? (
               <div className="w-full text-center">
                 <button
                   className="cursor-pointer flex items-center px-5 gap-2 w-full"
@@ -413,7 +395,7 @@ export default function Navbar() {
                   {mobileAccountOpen && (
                     <motion.ul
                       {...dropdownAnim}
-                      className={`mt-2 rounded-md border-t transition-colors duration-300 ${
+                      className={`mt-2 rounded-md border-t ${
                         theme === "dark"
                           ? "bg-gray-900 border-gray-700"
                           : "bg-white border-gray-300"
@@ -428,12 +410,39 @@ export default function Navbar() {
                       >
                         My Orders
                       </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                      <li
+                        onClick={() => {
+                          handleLogout();
+                          setMenuOpen(false);
+                        }}
+                        className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                      >
                         Logout
                       </li>
                     </motion.ul>
                   )}
                 </AnimatePresence>
+              </div>
+            ) : (
+              <div className="flex flex-col w-full items-center gap-3 px-5 mt-5">
+                <button
+                  onClick={() => {
+                    navigate("/login");
+                    setMenuOpen(false);
+                  }}
+                  className="w-full border px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/register");
+                    setMenuOpen(false);
+                  }}
+                  className="w-full bg-purple-600 text-white px-5 py-2 rounded-md hover:bg-purple-700"
+                >
+                  Sign Up
+                </button>
               </div>
             )}
           </motion.div>

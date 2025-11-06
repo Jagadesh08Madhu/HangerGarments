@@ -3,6 +3,9 @@ import Main from "../layouts/Main";
 import Home from "../pages/Home";
 import Aboutus from "../pages/Aboutus";
 import Shop from "../pages/Shop";
+import Contact from "../pages/Contact";
+import Login from "../components/Authentication/Login";
+import Signup from "../components/Authentication/Signup";
 
 export const router = createBrowserRouter([
     {
@@ -24,6 +27,20 @@ export const router = createBrowserRouter([
             {
                 path:"/shop/:category",
                 element:<Shop />
+            },
+            {
+                path:"/contact",
+                element:<Contact />
+            },
+
+            // Authenticated
+            {
+                path:"/login",
+                element:<Login />
+            },
+            {
+                path:"/register",
+                element:<Signup />
             }
         ]
     }
