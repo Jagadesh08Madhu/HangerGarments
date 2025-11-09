@@ -178,7 +178,7 @@ export default function Shop() {
     <section
       className={`pb-10 pt-44 px-6 min-h-screen transition-colors duration-500 ${bg} ${text}`}
     >
-      <h1 className="text-3xl font-bold text-center mb-10 capitalize">
+      <h1 className="text-3xl font-bold font-italiana tracking-widest lg:text-5xl text-center mb-10 capitalize">
         {category ? `${category}'s Collections` : "All Products"}
       </h1>
 

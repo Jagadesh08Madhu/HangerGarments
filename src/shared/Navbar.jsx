@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/slices/authSlice";
 import { FiMenu, FiX } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { CiDark } from "react-icons/ci";
@@ -11,24 +13,18 @@ export default function Navbar() {
   const [shopOpen, setShopOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeLink, setActiveLink] = useState("");
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [navTop, setNavTop] = useState("top-[35px]");
+  const dispatch = useDispatch()
 
-  // ✅ Check login token on mount
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    setIsLoggedIn(!!token);
-  }, [location.pathname]);
+const {isLoggedIn , user} = useSelector((state) =>state.auth)
 
   // ✅ Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    setIsLoggedIn(false);
-    navigate("/login");
+    dispatch(logout())
   };
 
   // ✅ Highlight active link
@@ -174,7 +170,7 @@ export default function Navbar() {
                     : "hover:bg-gray-100 border-gray-300"
                 }`}
               >
-                My Account
+                {user?.name || "User"}
               </button>
 
               <AnimatePresence>
@@ -385,7 +381,7 @@ export default function Navbar() {
                   className="cursor-pointer flex items-center px-5 gap-2 w-full"
                   onClick={() => setMobileAccountOpen(!mobileAccountOpen)}
                 >
-                  My Account
+                  {user?.name || "user"}
                   <span className="text-sm">
                     {mobileAccountOpen ? "▲" : "▼"}
                   </span>

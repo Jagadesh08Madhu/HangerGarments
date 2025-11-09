@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   FaUserCircle,
   FaUser,
@@ -12,10 +11,15 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from "../../redux/slices/authSlice";
 
 export default function Signup() {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { loading, error, isLoggedIn } = useSelector((state) => state.auth);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,45 +27,31 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  useEffect(()=>{
+    if(isLoggedIn){
+      navigate('/')
+    }
+  })
 
-  // 🧩 Handle Signup
+  // 🚀 Handle Signup
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
     setSuccess("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match!");
-      setLoading(false);
-      return;
+      return alert("Passwords do not match!");
     }
 
     try {
-      const res = await axios.post(`${BASE_URL}/signup`, {
-        name,
-        email,
-        password,
-      });
-
-      if (res.data?.success) {
+      const res = await dispatch(signupUser({ name, email, password })).unwrap();
+      if (res?.success) {
         setSuccess("Signup successful! Redirecting...");
-        console.log("✅ User Signed Up:", res.data);
         setTimeout(() => navigate("/login"), 1500);
-      } else {
-        throw new Error(res.data?.message || "Signup failed!");
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.message || "Server error. Please try again.";
-      setError(msg);
-    } finally {
-      setLoading(false);
+      console.error("Signup error:", err);
     }
   };
 
@@ -89,7 +79,6 @@ export default function Signup() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`relative w-full max-w-md rounded-2xl shadow-lg p-10 border ${card}`}
       >
-        {/* User Icon */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,7 +92,6 @@ export default function Signup() {
           />
         </motion.div>
 
-        {/* Title */}
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,7 +103,6 @@ export default function Signup() {
           CREATE ACCOUNT
         </motion.h2>
 
-        {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
           variants={fadeUp}
@@ -124,14 +111,8 @@ export default function Signup() {
           className="space-y-6"
         >
           {/* Name */}
-          <div
-            className={`flex items-center font-instrument border-b pb-2 ${inputBorder}`}
-          >
-            <FaUser
-              className={`mr-3 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
-            />
+          <div className={`flex items-center border-b pb-2 ${inputBorder}`}>
+            <FaUser className={`mr-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`} />
             <input
               type="text"
               placeholder="Full Name"
@@ -147,14 +128,8 @@ export default function Signup() {
           </div>
 
           {/* Email */}
-          <div
-            className={`flex items-center font-instrument border-b pb-2 ${inputBorder}`}
-          >
-            <FaEnvelope
-              className={`mr-3 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
-            />
+          <div className={`flex items-center border-b pb-2 ${inputBorder}`}>
+            <FaEnvelope className={`mr-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`} />
             <input
               type="email"
               placeholder="Email ID"
@@ -170,14 +145,8 @@ export default function Signup() {
           </div>
 
           {/* Password */}
-          <div
-            className={`flex items-center border-b pb-2 ${inputBorder} relative`}
-          >
-            <FaLock
-              className={`mr-3 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
-            />
+          <div className={`flex items-center border-b pb-2 ${inputBorder} relative`}>
+            <FaLock className={`mr-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`} />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -200,14 +169,8 @@ export default function Signup() {
           </div>
 
           {/* Confirm Password */}
-          <div
-            className={`flex items-center border-b pb-2 ${inputBorder} relative`}
-          >
-            <FaLock
-              className={`mr-3 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
-            />
+          <div className={`flex items-center border-b pb-2 ${inputBorder} relative`}>
+            <FaLock className={`mr-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`} />
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
@@ -229,29 +192,20 @@ export default function Signup() {
             </button>
           </div>
 
-          {/* Error Message */}
+          {/* Error / Success Messages */}
           {error && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-red-500 font-instrument text-sm text-center mt-2"
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 font-instrument text-sm text-center mt-2">
               {error}
             </motion.p>
           )}
 
-          {/* Success Message */}
           {success && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-green-500 font-instrument text-sm text-center mt-2"
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-green-500 font-instrument text-sm text-center mt-2">
               {success}
             </motion.p>
           )}
 
-          {/* Button */}
+          {/* Submit Button */}
           <motion.button
             type="submit"
             disabled={loading}
@@ -272,7 +226,6 @@ export default function Signup() {
           </motion.button>
         </motion.form>
 
-        {/* Already have account */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

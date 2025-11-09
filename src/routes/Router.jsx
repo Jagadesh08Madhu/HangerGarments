@@ -6,6 +6,8 @@ import Shop from "../pages/Shop";
 import Contact from "../pages/Contact";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
+import ProductDetails from "../pages/ProductDetails";
+import AddProduct from "../components/Dashboard/AddProduct";
 
 export const router = createBrowserRouter([
     {
@@ -32,6 +34,10 @@ export const router = createBrowserRouter([
                 path:"/contact",
                 element:<Contact />
             },
+            {
+                path:"/product-details",
+                element:<ProductDetails />
+            },
 
             // Authenticated
             {
@@ -41,6 +47,12 @@ export const router = createBrowserRouter([
             {
                 path:"/register",
                 element:<Signup />
+            },
+
+            // Dashboard
+            {
+                path:"/add-product",
+                element:<AddProduct />
             }
         ]
     }
