@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
 import { FiMenu, FiX } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
-import { CiDark } from "react-icons/ci";
+import { CiDark } from "react-icons/ci";  
 import { MdOutlineLightMode } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";

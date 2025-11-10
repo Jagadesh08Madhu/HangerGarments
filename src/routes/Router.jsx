@@ -7,6 +7,8 @@ import Contact from "../pages/Contact";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
 import ProductDetails from "../pages/ProductDetails";
+import AdminProduct from "../components/Dashboard/AdminProduct";
+import Dashboard from "../components/Dashboard/Dashboard";
 import AddProduct from "../components/Dashboard/AddProduct";
 
 export const router = createBrowserRouter([
@@ -51,9 +53,17 @@ export const router = createBrowserRouter([
 
             // Dashboard
             {
-                path:"/add-product",
+                path:"/admin",
+                element:<Dashboard />
+            },
+            {
+                path:"/admin/product",
+                element:<AdminProduct />
+            },
+            {
+                path:"/admin/add-product",
                 element:<AddProduct />
-            }
+            },
         ]
     }
 ])

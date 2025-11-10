@@ -3,7 +3,7 @@ import SideNav from "./SideNav";
 import { SidebarProvider } from "../../context/SidebarContext";
 import AdminNav from "./AdminNav";
 
-export default function Dashboard() {
+export default function AdminProduct() {
   return (
     <SidebarProvider>
       <section className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
