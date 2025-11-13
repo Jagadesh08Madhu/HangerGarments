@@ -1,110 +1,140 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../api/axios"; // your axios instance
+import { createSlice } from '@reduxjs/toolkit';
 
-// 🔹 LOGIN
-export const loginUser = createAsyncThunk(
-  "auth/loginUser",
-  async ({ email, password }, { rejectWithValue }) => {
-    try {
-      // backend: POST /auth/login
-      const res = await api.post("/auth/login", { email, password });
-      return res.data;
-    } catch (err) {
-      console.log("❌ Login Error:", err.response?.data);
-      return rejectWithValue(err.response?.data?.message || "Login failed");
-    }
-  }
-);
-
-// 🔹 SIGNUP
-export const signupUser = createAsyncThunk(
-  "auth/signupUser",
-  async ({ name, email, password }, { rejectWithValue }) => {
-    try {
-      // backend: POST /auth/register
-      const res = await api.post("/auth/register", { name, email, password });
-      return res.data;
-    } catch (err) {
-      console.log("❌ Signup Error:", err.response?.data);
-      return rejectWithValue(err.response?.data?.message || "Signup failed");
-    }
-  }
-);
-
-const token = localStorage.getItem("authToken");
+// Helper function to get initial state from localStorage
+const getInitialState = () => {
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('userData');
+  
+  return {
+    user: userData ? JSON.parse(userData) : null,
+    token: token,
+    isAuthenticated: !!token,
+    loading: false,
+    initialCheckDone: false,
+    error: null,
+    role: userData ? JSON.parse(userData)?.role : null,
+  };
+};
 
 const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    token: token || null,
-    user: null,
-    loading: false,
-    error: null,
-    isLoggedIn: !!token,
-  },
+  name: 'auth',
+  initialState: getInitialState(),
   reducers: {
-    logout: (state) => {
-      state.token = null;
-      state.user = null;
-      state.isLoggedIn = false;
-      localStorage.removeItem("authToken");
+    setCredentials: (state, action) => {
+      let user, token;
+      
+      console.log('setCredentials payload:', action.payload);
+      
+      // Handle different response structures
+      if (action.payload.data && action.payload.data.accessToken) {
+        user = action.payload.data.user;
+        token = action.payload.data.accessToken;
+      } 
+      else if (action.payload.data && action.payload.data.token) {
+        user = action.payload.data.user;
+        token = action.payload.data.token;
+      }
+      else if (action.payload.user && action.payload.accessToken) {
+        user = action.payload.user;
+        token = action.payload.accessToken;
+      }
+      else if (action.payload.user && action.payload.token) {
+        user = action.payload.user;
+        token = action.payload.token;
+      }
+      else {
+        user = action.payload;
+        token = action.payload.token || action.payload.accessToken;
+      }
+
+      if (user && token) {
+        state.user = user;
+        state.token = token;
+        state.isAuthenticated = true;
+        state.role = user.role || null;
+        state.loading = false;
+        state.initialCheckDone = true;
+        state.error = null;
+        
+        // Store in localStorage for persistence
+        localStorage.setItem('token', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+        
+        console.log('Credentials set successfully:', { user: user.name, role: user.role });
+      } else {
+        console.error('Invalid credentials payload:', action.payload);
+        state.loading = false;
+        state.initialCheckDone = true;
+      }
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      // ✅ LOGIN
-      .addCase(loginUser.pending, (s) => {
-        s.loading = true;
-        s.error = null;
-      })
-      .addCase(loginUser.fulfilled, (s, a) => {
-        s.loading = false;
+    
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.role = null;
+      state.loading = false;
+      state.initialCheckDone = true;
+      
+      // Clear localStorage on logout
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      sessionStorage.clear(); // Clear sessionStorage as well
+    },
+    
+    clearError: (state) => {
+      state.error = null;
+    },
+    
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+    
+    setInitialCheckDone: (state, action) => {
+      state.initialCheckDone = action.payload;
+    },
+    
+    authStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    
+    authFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.initialCheckDone = true;
+    },
+    
+    authCheckComplete: (state) => {
+      state.loading = false;
+      state.initialCheckDone = true;
+    },
 
-        // Handle backend structure
-        const { data, success, message } = a.payload;
-        if (success && data?.accessToken) {
-          s.token = data.accessToken;
-          s.user = data.user;
-          s.isLoggedIn = true;
-          localStorage.setItem("authToken", data.accessToken);
-        } else {
-          s.error = message || "Login failed!";
-        }
-      })
-      .addCase(loginUser.rejected, (s, a) => {
-        s.loading = false;
-        s.error = a.payload;
-      })
-
-      // ✅ SIGNUP
-      .addCase(signupUser.pending, (s) => {
-        s.loading = true;
-        s.error = null;
-      })
-      .addCase(signupUser.fulfilled, (s, a) => {
-        s.loading = false;
-
-        const { data, success, message } = a.payload;
-        if (success && data?.accessToken) {
-          // auto-login after signup
-          s.token = data.accessToken;
-          s.user = data.user;
-          s.isLoggedIn = true;
-          localStorage.setItem("authToken", data.accessToken);
-        } else if (success) {
-          // registered but no token
-          s.isLoggedIn = false;
-          s.user = null;
-        } else {
-          s.error = message || "Signup failed!";
-        }
-      })
-      .addCase(signupUser.rejected, (s, a) => {
-        s.loading = false;
-        s.error = a.payload;
-      });
+    // NEW: Refresh user data from localStorage
+    refreshAuth: (state) => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('userData');
+      
+      if (token && userData) {
+        state.user = JSON.parse(userData);
+        state.token = token;
+        state.isAuthenticated = true;
+        state.role = JSON.parse(userData)?.role;
+      }
+      state.initialCheckDone = true;
+    },
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { 
+  setCredentials, 
+  logout, 
+  clearError, 
+  setLoading, 
+  setInitialCheckDone,
+  authStart,
+  authFailure,
+  authCheckComplete,
+  refreshAuth // Add the new action
+} = authSlice.actions;
 export default authSlice.reducer;
