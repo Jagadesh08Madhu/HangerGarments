@@ -270,137 +270,130 @@ const handleStatusToggle = async (categoryId, currentStatus) => {
 }
   ];
 
-  // Mobile card renderer
-  const renderCategoryCard = (category) => {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`rounded-lg border p-4 shadow-sm hover:shadow-md transition-all ${themeStyles.card}`}
-      >
-        <div className="flex items-center space-x-4">
-          {/* Category Image */}
-          <div className={`w-16 h-16 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 ${
-            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
-          }`}>
-            {category.image ? (
-              <img
-                src={category.image}
-                alt={category.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.nextSibling.style.display = "flex";
-                }}
-              />
-            ) : null}
-            <div
-              className={`w-full h-full flex items-center justify-center ${
-                category.image ? "hidden" : "flex"
-              }`}
-            >
-              <FiImage className={`w-6 h-6 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
-            </div>
-          </div>
-
-          {/* Category Details */}
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-              <div className="min-w-0">
-                <h3 className={`font-medium truncate ${themeStyles.text.primary}`}>
-                  {category.name}
-                </h3>
-                <p className={`text-sm truncate ${themeStyles.text.muted}`}>
-                  {category.description || 'No description'}
-                </p>
-              </div>
-
-              {/* Status toggle */}
-              <button
-                onClick={() => handleStatusToggle(category.id, category.isActive)}
-                disabled={isStatusLoading}
-                className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${
-                  category.isActive
-                    ? theme === 'dark' 
-                      ? 'bg-green-900 text-green-200' 
-                      : 'bg-green-100 text-green-800'
-                    : theme === 'dark'
-                      ? 'bg-gray-700 text-gray-300'
-                      : 'bg-gray-100 text-gray-800'
-                } ${isStatusLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                data-action-button="true" // ADD THIS
-              >
-                {isStatusLoading && (
-                  <FiRefreshCw className="w-3 h-3 animate-spin" />
-                )}
-                <span>
-                  {isStatusLoading
-                    ? "Updating..."
-                    : category.isActive
-                    ? "Active"
-                    : "Inactive"}
-                </span>
-              </button>
-            </div>
-
-            {/* Bottom section */}
-            <div className={`flex flex-wrap justify-between items-center mt-3 pt-3 ${
-              theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+    const renderCategoryCard = (category) => {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`rounded-lg border p-4 shadow-sm hover:shadow-md transition-all ${themeStyles.card}`}
+        >
+          <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-4 space-y-4 sm:space-y-0">
+            
+            {/* Category Image */}
+            <div className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
             }`}>
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                theme === 'dark' ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
-              } mb-2 sm:mb-0`}>
-                <FiPackage className="w-3 h-3 mr-1" />
-                {category._count?.products || 0} products
-              </span>
+              {category.image ? (
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "flex";
+                  }}
+                />
+              ) : null}
+              <div className={`w-full h-full flex items-center justify-center ${category.image ? "hidden" : "flex"}`}>
+                <FiImage className={`w-6 h-6 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+              </div>
+            </div>
+
+            {/* Category Details */}
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
               
-              <div className="flex space-x-2">
-                {/* View Button */}
-                <Link
-                  to={`/dashboard/categories/view/${category.id}`}
-                  className={`p-1 rounded transition-colors ${
-                    theme === 'dark' 
-                      ? 'text-blue-400 hover:bg-blue-900' 
-                      : 'text-blue-600 hover:bg-blue-50'
-                  }`}
-                  data-action-button="true" // ADD THIS
-                >
-                  <FiEye className="w-4 h-4" />
-                </Link>
-                
-                {/* Edit Button */}
-                <Link
-                  to={`/dashboard/categories/edit/${category.id}`}
-                  className={`p-1 rounded transition-colors ${
-                    theme === 'dark' 
-                      ? 'text-green-400 hover:bg-green-900' 
-                      : 'text-green-600 hover:bg-green-50'
-                  }`}
-                  data-action-button="true" // ADD THIS
-                >
-                  <FiEdit2 className="w-4 h-4" />
-                </Link>
-                
-                {/* Delete Button */}
+              {/* Top section: Name, Description, Status */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2 w-full">
+                <div className="min-w-0">
+                  <h3 className={`font-medium truncate text-ellipsis overflow-hidden ${themeStyles.text.primary}`}>
+                    {category.name}
+                  </h3>
+                  <p className={`text-sm line-clamp-2 overflow-hidden text-ellipsis ${themeStyles.text.muted}`}>
+                    {category.description || 'No description'}
+                  </p>
+                </div>
+
+                {/* Status toggle */}
                 <button
-                  onClick={() => openDeleteModal(category)}
-                  className={`p-1 rounded transition-colors ${
-                    theme === 'dark' 
-                      ? 'text-red-400 hover:bg-red-900' 
-                      : 'text-red-600 hover:bg-red-50'
-                  }`}
-                  disabled={isDeleting}
-                  data-action-button="true" // ADD THIS
+                  onClick={() => handleStatusToggle(category.id, category.isActive)}
+                  disabled={isStatusLoading}
+                  className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 mt-2 sm:mt-0 whitespace-nowrap ${
+                    category.isActive
+                      ? theme === 'dark' 
+                        ? 'bg-green-900 text-green-200' 
+                        : 'bg-green-100 text-green-800'
+                      : theme === 'dark'
+                        ? 'bg-gray-700 text-gray-300'
+                        : 'bg-gray-100 text-gray-800'
+                  } ${isStatusLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  data-action-button="true"
                 >
-                  <FiTrash2 className="w-4 h-4" />
+                  {isStatusLoading && <FiRefreshCw className="w-3 h-3 animate-spin" />}
+                  <span>
+                    {isStatusLoading
+                      ? "Updating..."
+                      : category.isActive
+                      ? "Active"
+                      : "Inactive"}
+                  </span>
                 </button>
               </div>
+
+              {/* Bottom section: Count + Action buttons */}
+              <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 pt-3 border-t ${
+                theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+              } gap-2 sm:gap-0 w-full`}>
+                
+                {/* Product count */}
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                  theme === 'dark' ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  <FiPackage className="w-3 h-3 mr-1" />
+                  {category._count?.products || 0} products
+                </span>
+                
+                {/* Action buttons */}
+                <div className="flex flex-wrap sm:flex-nowrap space-x-2 mt-2 sm:mt-0">
+                  <Link
+                    to={`/dashboard/categories/view/${category.id}`}
+                    className={`p-1 rounded transition-colors ${
+                      theme === 'dark' ? 'text-blue-400 hover:bg-blue-900' : 'text-blue-600 hover:bg-blue-50'
+                    }`}
+                    data-action-button="true"
+                  >
+                    <FiEye className="w-4 h-4" />
+                  </Link>
+                  
+                  <Link
+                    to={`/dashboard/categories/edit/${category.id}`}
+                    className={`p-1 rounded transition-colors ${
+                      theme === 'dark' ? 'text-green-400 hover:bg-green-900' : 'text-green-600 hover:bg-green-50'
+                    }`}
+                    data-action-button="true"
+                  >
+                    <FiEdit2 className="w-4 h-4" />
+                  </Link>
+                  
+                  <button
+                    onClick={() => openDeleteModal(category)}
+                    className={`p-1 rounded transition-colors ${
+                      theme === 'dark' ? 'text-red-400 hover:bg-red-900' : 'text-red-600 hover:bg-red-50'
+                    }`}
+                    disabled={isDeleting}
+                    data-action-button="true"
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
-    );
-  };
+        </motion.div>
+      );
+    };
+
+
 
   return (
     <div className={`min-h-screen p-3 sm:p-4 lg:p-6 ${themeStyles.background}`}>

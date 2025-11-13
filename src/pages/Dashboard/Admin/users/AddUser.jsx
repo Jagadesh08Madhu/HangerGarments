@@ -53,22 +53,22 @@ const AddUser = () => {
     <div className="min-h-screen p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-<div className="mb-8">
-  <div className="flex items-start gap-4">
-    <button
-      onClick={() => navigate('/dashboard/users')}
-      className={`p-2 rounded-lg ${currentTheme.border} hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mt-1`}
-    >
-      <ArrowLeft size={20} />
-    </button>
-    <div>
-      <h1 className="text-3xl font-bold font-italiana mb-2">Create New User</h1>
-      <p className={`text-lg ${currentTheme.text} opacity-70 font-instrument`}>
-        Select the type of user you want to create
-      </p>
-    </div>
-  </div>
-</div>
+        <div className="mb-8">
+        <div className="flex items-start gap-4">
+            <button
+            onClick={() => navigate('/dashboard/users')}
+            className={`p-2 rounded-lg ${currentTheme.border} hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mt-1`}
+            >
+            <ArrowLeft size={20} />
+            </button>
+            <div>
+            <h1 className="text-3xl font-bold font-italiana mb-2">Create New User</h1>
+            <p className={`text-lg ${currentTheme.text} opacity-70 font-instrument`}>
+                Select the type of user you want to create
+            </p>
+            </div>
+        </div>
+        </div>
 
         {/* User Type Selection */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

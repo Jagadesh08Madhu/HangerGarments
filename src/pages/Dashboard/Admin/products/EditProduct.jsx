@@ -555,37 +555,42 @@ const EditProduct = () => {
                 variants={slideInVariants}
                 className={`rounded-lg ${currentTheme.shadow} overflow-hidden ${currentTheme.bg.secondary}`}
               >
-                {/* Header */}
-                <div className={`border-b ${currentTheme.border} ${currentTheme.bg.primary}`}>
-                  <div className="max-w-7xl mx-auto px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <button
-                          onClick={() => navigate(-1)}
-                          className={`p-2 rounded-lg ${currentTheme.bg.secondary} ${currentTheme.text.primary} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
-                        >
-                          <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                          <h1 className="text-2xl font-bold font-italiana">{product.name}</h1>
-                          <p className={`${currentTheme.text.muted} font-instrument`}>
-                            Product Code: {product.productCode}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-3">
-                        <Link
-                          to={`/dashboard/products/view/${product.id}`}
-                          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          <View size={16} className="mr-2" />
-                          View
-                        </Link>
+              {/* Header */}
+              <div className={`border-b ${currentTheme.border} ${currentTheme.bg.primary}`}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+                    
+                    {/* Left Section: Back Button + Product Info */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                      <button
+                        onClick={() => navigate(-1)}
+                        className={`p-2 rounded-lg ${currentTheme.bg.secondary} ${currentTheme.text.primary} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
+                      <div>
+                        <h1 className="text-xl sm:text-2xl font-bold font-italiana">{product.name}</h1>
+                        <p className={`${currentTheme.text.muted} font-instrument text-sm sm:text-base`}>
+                          Product Code: {product.productCode}
+                        </p>
                       </div>
                     </div>
+
+                    {/* Right Section: View Button */}
+                    <div className="flex sm:flex-row flex-col sm:space-x-3 space-y-2 sm:space-y-0">
+                      <Link
+                        to={`/dashboard/products/view/${product.id}`}
+                        className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <View size={16} className="mr-2" />
+                        View
+                      </Link>
+                    </div>
+
                   </div>
                 </div>
+              </div>
+
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-8">
                   {/* Basic Information Section */}

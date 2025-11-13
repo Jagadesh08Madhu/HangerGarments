@@ -69,6 +69,7 @@ import EditSlider from "../pages/Dashboard/Admin/sliders/EditSlider";
 import AdminSliders from "../pages/Dashboard/Admin/sliders/AdminSliders";
 import AddSlider from "../pages/Dashboard/Admin/sliders/AddSlider";
 import ViewSlider from "../pages/Dashboard/Admin/sliders/ViewSlider";
+import Analytics from "../pages/Dashboard/Admin/Analytics";
 
 export const router = createBrowserRouter([
   {
@@ -147,6 +148,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <Dashboard />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "analytics",
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Analytics />
           </ProtectedRoute>
         )
       },

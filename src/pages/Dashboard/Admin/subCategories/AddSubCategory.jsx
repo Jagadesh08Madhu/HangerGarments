@@ -226,23 +226,31 @@ const AddSubCategory = () => {
               >
                 {/* Header */}
                 <div className={`border-b ${currentTheme.border} ${currentTheme.bg.primary}`}>
-                  <div className="max-w-4xl mx-auto px-6 py-4">
-                    <div className="flex items-center space-x-4">
-                      <button
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                    
+                    {/* Back Button + Title */}
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <button
                         onClick={() => navigate(-1)}
                         className={`p-2 rounded-lg ${currentTheme.bg.secondary} ${currentTheme.text.primary} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
-                      >
+                        >
                         <ArrowLeft size={20} />
-                      </button>
-                      <div>
-                        <h1 className="text-2xl font-bold font-italiana">Create New Subcategory</h1>
-                        <p className={`${currentTheme.text.muted} font-instrument`}>
-                          Add a new product subcategory
+                        </button>
+                        <div>
+                        <h1 className="text-xl sm:text-2xl font-bold font-italiana">
+                            Create New Subcategory
+                        </h1>
+                        <p className={`${currentTheme.text.muted} font-instrument text-sm sm:text-base`}>
+                            Add a new product subcategory
                         </p>
-                      </div>
+                        </div>
                     </div>
-                  </div>
+
+                    </div>
                 </div>
+                </div>
+
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                   {/* Basic Information */}

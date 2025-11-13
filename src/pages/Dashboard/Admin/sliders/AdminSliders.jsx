@@ -359,194 +359,205 @@ const AdminSliders = () => {
     }
   ];
 
-  // Mobile card renderer
-  const renderSliderCard = (slider) => {
+    const renderSliderCard = (slider) => {
     const isActiveWithDates = isSliderActive(slider);
     const isExpired = isSliderExpired(slider);
     const isScheduled = isSliderScheduled(slider);
 
     let statusText = 'Inactive';
     let statusColor = 'gray';
-    
+
     if (isActiveWithDates) {
-      statusText = 'Active';
-      statusColor = 'green';
+        statusText = 'Active';
+        statusColor = 'green';
     } else if (isExpired) {
-      statusText = 'Expired';
-      statusColor = 'red';
+        statusText = 'Expired';
+        statusColor = 'red';
     } else if (isScheduled) {
-      statusText = 'Scheduled';
-      statusColor = 'yellow';
+        statusText = 'Scheduled';
+        statusColor = 'yellow';
     }
 
     return (
-      <motion.div
+        <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={`rounded-lg border p-4 shadow-sm hover:shadow-md transition-all ${themeStyles.card}`}
-      >
-        <div className="flex items-center space-x-4">
-          {/* Slider Image */}
-          <div className={`w-20 h-16 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 ${
-            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
-          }`}>
+        >
+        {/* Responsive Image + Details */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
+            {/* Slider Image */}
+            <div
+            className={`w-full sm:w-20 h-40 sm:h-16 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 ${
+                theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
+            }`}
+            >
             {slider.image ? (
-              <img
+                <img
                 src={slider.image}
                 alt={slider.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.nextSibling.style.display = "flex";
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
                 }}
-              />
+                />
             ) : null}
             <div
-              className={`w-full h-full flex items-center justify-center ${
-                slider.image ? "hidden" : "flex"
-              }`}
+                className={`w-full h-full flex items-center justify-center ${
+                slider.image ? 'hidden' : 'flex'
+                }`}
             >
-              <FiImage className={`w-6 h-6 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+                <FiImage
+                className={`w-6 h-6 ${
+                    theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                }`}
+                />
             </div>
-          </div>
+            </div>
 
-          {/* Slider Details */}
-          <div className="flex-1 min-w-0">
+            {/* Slider Details */}
+            <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-              <div className="min-w-0">
+                <div className="min-w-0">
                 <h3 className={`font-medium truncate ${themeStyles.text.primary}`}>
-                  {slider.title}
+                    {slider.title}
                 </h3>
                 <p className={`text-sm truncate ${themeStyles.text.muted}`}>
-                  {slider.subtitle || 'No subtitle'}
+                    {slider.subtitle || 'No subtitle'}
                 </p>
-              </div>
+                </div>
 
-              {/* Status toggle */}
-              <button
+                {/* Status toggle */}
+                <button
                 onClick={() => handleStatusToggle(slider.id, slider.isActive)}
                 disabled={isStatusLoading || isExpired}
                 className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${
-                  statusColor === 'green'
-                    ? theme === 'dark' 
-                      ? 'bg-green-900 text-green-200' 
-                      : 'bg-green-100 text-green-800'
+                    statusColor === 'green'
+                    ? theme === 'dark'
+                        ? 'bg-green-900 text-green-200'
+                        : 'bg-green-100 text-green-800'
                     : statusColor === 'red'
                     ? theme === 'dark'
-                      ? 'bg-red-900 text-red-200'
-                      : 'bg-red-100 text-red-800'
+                        ? 'bg-red-900 text-red-200'
+                        : 'bg-red-100 text-red-800'
                     : statusColor === 'yellow'
                     ? theme === 'dark'
-                      ? 'bg-yellow-900 text-yellow-200'
-                      : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-yellow-900 text-yellow-200'
+                        : 'bg-yellow-100 text-yellow-800'
                     : theme === 'dark'
                     ? 'bg-gray-700 text-gray-300'
                     : 'bg-gray-100 text-gray-800'
-                } ${isStatusLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${isStatusLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 data-action-button="true"
-              >
+                >
                 {isStatusLoading && (
-                  <FiRefreshCw className="w-3 h-3 animate-spin" />
+                    <FiRefreshCw className="w-3 h-3 animate-spin" />
                 )}
                 <span>
-                  {isStatusLoading
-                    ? "Updating..."
-                    : statusText}
+                    {isStatusLoading ? 'Updating...' : statusText}
                 </span>
-              </button>
+                </button>
             </div>
 
             {/* Slider Info */}
             <div className="grid grid-cols-2 gap-4 mb-3">
-              <div>
+                <div>
                 <p className={`text-sm ${themeStyles.text.muted}`}>Layout</p>
-                <p className={`font-semibold ${themeStyles.text.primary} flex items-center`}>
-                  <FiLayout className="w-3 h-3 mr-1 text-blue-500" />
-                  {formatLayout(slider.layout)}
+                <p
+                    className={`font-semibold ${themeStyles.text.primary} flex items-center`}
+                >
+                    <FiLayout className="w-3 h-3 mr-1 text-blue-500" />
+                    {formatLayout(slider.layout)}
                 </p>
-              </div>
-              <div>
+                </div>
+                <div>
                 <p className={`text-sm ${themeStyles.text.muted}`}>Order</p>
                 <p className={`font-semibold ${themeStyles.text.primary}`}>
-                  #{slider.order}
+                    #{slider.order}
                 </p>
-              </div>
+                </div>
             </div>
 
             {/* Dates */}
             {(slider.startDate || slider.endDate) && (
-              <div className={`flex items-center justify-between mb-3 p-2 rounded ${
-                theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
-              }`}>
+                <div
+                className={`flex items-center justify-between mb-3 p-2 rounded ${
+                    theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
+                }`}
+                >
                 <div className="flex items-center space-x-2">
-                  <FiCalendar className={`w-4 h-4 ${themeStyles.text.muted}`} />
-                  <div className="text-xs">
+                    <FiCalendar className={`w-4 h-4 ${themeStyles.text.muted}`} />
+                    <div className="text-xs">
                     {slider.startDate && (
-                      <div className={themeStyles.text.primary}>
+                        <div className={themeStyles.text.primary}>
                         From: {new Date(slider.startDate).toLocaleDateString()}
-                      </div>
+                        </div>
                     )}
                     {slider.endDate && (
-                      <div className={themeStyles.text.muted}>
+                        <div className={themeStyles.text.muted}>
                         To: {new Date(slider.endDate).toLocaleDateString()}
-                      </div>
+                        </div>
                     )}
-                  </div>
+                    </div>
                 </div>
-              </div>
+                </div>
             )}
-          </div>
+            </div>
         </div>
 
         {/* Actions */}
-        <div className={`flex justify-between items-center pt-3 border-t ${
-          theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-        }`}>
-          <div className="flex space-x-2">
+        <div
+            className={`flex flex-wrap justify-between items-center pt-3 border-t gap-2 ${
+            theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+            }`}
+        >
+            <div className="flex space-x-2">
             {/* View Button */}
             <Link
-              to={`/dashboard/sliders/view/${slider.id}`}
-              className={`p-2 rounded transition-colors ${
-                theme === 'dark' 
-                  ? 'text-blue-400 hover:bg-blue-900' 
-                  : 'text-blue-600 hover:bg-blue-50'
-              }`}
-              data-action-button="true"
+                to={`/dashboard/sliders/view/${slider.id}`}
+                className={`p-2 rounded transition-colors ${
+                theme === 'dark'
+                    ? 'text-blue-400 hover:bg-blue-900'
+                    : 'text-blue-600 hover:bg-blue-50'
+                }`}
+                data-action-button="true"
             >
-              <FiEye className="w-4 h-4" />
+                <FiEye className="w-4 h-4" />
             </Link>
-            
+
             {/* Edit Button */}
             <Link
-              to={`/dashboard/sliders/edit/${slider.id}`}
-              className={`p-2 rounded transition-colors ${
-                theme === 'dark' 
-                  ? 'text-green-400 hover:bg-green-900' 
-                  : 'text-green-600 hover:bg-green-50'
-              }`}
-              data-action-button="true"
+                to={`/dashboard/sliders/edit/${slider.id}`}
+                className={`p-2 rounded transition-colors ${
+                theme === 'dark'
+                    ? 'text-green-400 hover:bg-green-900'
+                    : 'text-green-600 hover:bg-green-50'
+                }`}
+                data-action-button="true"
             >
-              <FiEdit2 className="w-4 h-4" />
+                <FiEdit2 className="w-4 h-4" />
             </Link>
-            
+
             {/* Delete Button */}
             <button
-              onClick={() => openDeleteModal(slider)}
-              className={`p-2 rounded transition-colors ${
-                theme === 'dark' 
-                  ? 'text-red-400 hover:bg-red-900' 
-                  : 'text-red-600 hover:bg-red-50'
-              }`}
-              disabled={isDeleting}
-              data-action-button="true"
+                onClick={() => openDeleteModal(slider)}
+                className={`p-2 rounded transition-colors ${
+                theme === 'dark'
+                    ? 'text-red-400 hover:bg-red-900'
+                    : 'text-red-600 hover:bg-red-50'
+                }`}
+                disabled={isDeleting}
+                data-action-button="true"
             >
-              <FiTrash2 className="w-4 h-4" />
+                <FiTrash2 className="w-4 h-4" />
             </button>
-          </div>
+            </div>
         </div>
-      </motion.div>
+        </motion.div>
     );
-  };
+    };
+
 
   return (
     <div className={`min-h-screen p-3 sm:p-4 lg:p-6 ${themeStyles.background}`}>
@@ -560,7 +571,7 @@ const AdminSliders = () => {
         <div className="mb-6 lg:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
             <div className="flex-1 min-w-0">
-              <h1 className={`text-2xl sm:text-3xl font-bold truncate ${themeStyles.text.primary}`}>
+              <h1 className={`text-2xl font-italiana sm:text-3xl font-bold truncate ${themeStyles.text.primary}`}>
                 Sliders Management
               </h1>
               <p className={`mt-1 text-sm sm:text-base ${themeStyles.text.secondary}`}>

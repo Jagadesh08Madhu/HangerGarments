@@ -1,4 +1,5 @@
 import { apiSlice } from './api';
+import { toast } from 'react-toastify';
 
 export const sliderService = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -23,12 +24,50 @@ export const sliderService = apiSlice.injectEndpoints({
     }),
 
     createSlider: builder.mutation({
-      query: (sliderData) => ({
-        url: '/sliders',
-        method: 'POST',
-        body: sliderData,
-      }),
+      query: (sliderData) => {
+        console.log('🔄 Sending FormData to API...');
+        
+        return {
+          url: '/sliders',
+          method: 'POST',
+          body: sliderData,
+          // Let browser set headers automatically for FormData
+        };
+      },
       invalidatesTags: ['Slider'],
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        try {
+          const result = await queryFulfilled;
+          console.log('✅ Slider created successfully:', result);
+          toast.success('Slider created successfully!');
+        } catch (error) {
+          console.error('❌ Slider creation failed:', error);
+          
+          // Enhanced error logging
+          console.log('Error details:', {
+            status: error.error?.status,
+            data: error.error?.data,
+            message: error.error?.data?.message
+          });
+          
+          let errorMessage = 'Failed to create slider';
+          
+          if (error.error?.status === 400) {
+            errorMessage = error.error?.data?.message || 'Validation failed';
+            if (error.error?.data?.errors) {
+              errorMessage += ': ' + error.error.data.errors.map(err => err.message).join(', ');
+            }
+          } else if (error.error?.status === 401) {
+            errorMessage = 'Authentication failed. Please login again.';
+          } else if (error.error?.status === 413) {
+            errorMessage = 'File size too large. Please select smaller images.';
+          } else if (error.error?.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+          
+          toast.error(errorMessage);
+        }
+      },
     }),
 
     updateSlider: builder.mutation({
@@ -37,7 +76,18 @@ export const sliderService = apiSlice.injectEndpoints({
         method: 'PUT',
         body: sliderData,
       }),
-      invalidatesTags: ['Slider'],
+      invalidatesTags: (result, error, { sliderId }) => [
+        'Slider',
+        { type: 'Slider', id: sliderId }
+      ],
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success('Slider updated successfully!');
+        } catch (error) {
+          toast.error(error.error?.data?.message || 'Failed to update slider');
+        }
+      },
     }),
 
     deleteSlider: builder.mutation({
@@ -46,15 +96,40 @@ export const sliderService = apiSlice.injectEndpoints({
         method: 'DELETE',
       }),
       invalidatesTags: ['Slider'],
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success('Slider deleted successfully!');
+        } catch (error) {
+          toast.error(error.error?.data?.message || 'Failed to delete slider');
+        }
+      },
     }),
 
-    toggleSliderStatus: builder.mutation({
-      query: (sliderId) => ({
-        url: `/sliders/${sliderId}/status`,
-        method: 'PATCH',
-      }),
-      invalidatesTags: ['Slider'],
+  toggleSliderStatus: builder.mutation({
+    query: ({ sliderId, currentStatus }) => ({
+      url: `/sliders/${sliderId}/status`,
+      method: 'PATCH',
+      body: {
+        isActive: !currentStatus
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }),
+    invalidatesTags: (result, error, { sliderId }) => [
+      'Slider',
+      { type: 'Slider', id: sliderId }
+    ],
+    async onQueryStarted(arg, { queryFulfilled }) {
+      try {
+        await queryFulfilled;
+        toast.success('Slider status updated!');
+      } catch (error) {
+        toast.error(error.error?.data?.message || 'Failed to update slider status');
+      }
+    },
+  }),
 
     reorderSliders: builder.mutation({
       query: (sliderOrder) => ({
@@ -63,6 +138,14 @@ export const sliderService = apiSlice.injectEndpoints({
         body: sliderOrder,
       }),
       invalidatesTags: ['Slider'],
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success('Sliders reordered successfully!');
+        } catch (error) {
+          toast.error(error.error?.data?.message || 'Failed to reorder sliders');
+        }
+      },
     }),
 
     // Add slider stats endpoint
@@ -76,7 +159,6 @@ export const sliderService = apiSlice.injectEndpoints({
       providesTags: ['Slider'],
     }),
   }),
-
 });
 
 export const {
