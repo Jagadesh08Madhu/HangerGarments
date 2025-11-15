@@ -73,7 +73,6 @@ const handleSubmit = async (e) => {
       userData.phone = formData.phone.trim();
     }
 
-    console.log('Sending admin data:', userData);
     await createUser(userData).unwrap();
     
     toast.success('Admin created successfully!');

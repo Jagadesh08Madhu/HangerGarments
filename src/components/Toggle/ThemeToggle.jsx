@@ -1,21 +1,26 @@
-import React from "react";
-import { MdOutlineLightMode } from "react-icons/md";
-import { CiDark } from "react-icons/ci";
-import { useTheme } from "../../context/ThemeContext"; // ✅ correct import
+import React from 'react';
+import { motion } from 'framer-motion';
+import { MdOutlineLightMode, MdOutlineDarkMode } from 'react-icons/md';
 
-export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-
+const ThemeToggle = ({ theme, toggleTheme }) => {
   return (
-    <button
+    <motion.button
       onClick={toggleTheme}
-      className="p-2 border rounded-md transition hover:bg-gray-200 dark:hover:bg-gray-800"
+      className={`p-3 rounded-xl transition-all duration-300 ${
+        theme === "dark"
+          ? "text-gray-300 hover:text-purple-300 hover:bg-gray-800"
+          : "text-gray-600 hover:text-purple-600 hover:bg-gray-50"
+      }`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
       {theme === "light" ? (
-        <CiDark className="text-xl" />
+        <MdOutlineDarkMode className="size-5" />
       ) : (
-        <MdOutlineLightMode className="text-xl" />
+        <MdOutlineLightMode className="size-5" />
       )}
-    </button>
+    </motion.button>
   );
-}
+};
+
+export default ThemeToggle;

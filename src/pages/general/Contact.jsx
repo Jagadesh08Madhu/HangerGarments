@@ -25,7 +25,7 @@ export default function Contact() {
 
   return (
     <section
-      className={`relative pt-12 pb-20 px-6 md:px-16 transition-all duration-500 ${bg}`}
+      className={`relative lg:py-8 py-8 pb-20 px-6 md:px-16 transition-all duration-500 ${bg}`}
     >
       <div className="flex flex-col items-center text-center">
         {/* Header */}

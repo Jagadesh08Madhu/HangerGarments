@@ -5,27 +5,30 @@ import { toast } from 'react-toastify';
 export const productService = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Admin product endpoints
-getAdminProducts: builder.query({
-  query: (params = {}) => ({
-    url: '/products',
-    params: {
-      page: params.page || 1,
-      limit: params.limit || 10,
-      search: params.search || '',
-      status: params.status || '', // Send as-is: "active", "inactive"
-      category: params.category || '',
-      sortBy: params.sortBy || 'createdAt',
-      sortOrder: params.sortOrder || 'desc'
-    },
-  }),
-  providesTags: ['Product'],
-}),
+    getAdminProducts: builder.query({
+      query: (params = {}) => ({
+        url: '/products',
+        params: {
+          page: params.page || 1,
+          limit: params.limit || 10,
+          search: params.search || '',
+          status: params.status || '', // Send as-is: "active", "inactive"
+          category: params.category || '',
+          sortBy: params.sortBy || 'createdAt',
+          sortOrder: params.sortOrder || 'desc'
+        },
+      }),
+      providesTags: ['Product'],
+    }),
 
     getProductById: builder.query({
       query: (productId) => `/products/${productId}`,
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
+    getProductBySlug: builder.query({
+  query: (productId) => `/products/${productId}`,
+}),
     createProduct: builder.mutation({
       query: (formData) => ({
         url: '/products/admin',
@@ -206,12 +209,18 @@ getAdminProducts: builder.query({
       query: () => '/products/best-sellers/products',
       providesTags: ['Product'],
     }),
+
+    getRelatedProducts: builder.query({
+  query: ({ category, excludeProductId }) => 
+    `/products/related?category=${category}&exclude=${excludeProductId}&limit=10`,
+}),
   }),
 });
 
 export const {
   useGetAdminProductsQuery,
   useGetProductByIdQuery,
+  useGetProductBySlugQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
@@ -226,4 +235,5 @@ export const {
   useGetFeaturedProductsQuery,
   useGetNewArrivalsQuery,
   useGetBestSellersQuery,
+  useGetRelatedProductsQuery,
 } = productService;

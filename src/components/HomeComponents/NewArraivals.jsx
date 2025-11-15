@@ -1,47 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "../../context/ThemeContext"; 
-import tshirt from "../../assets/categories/tshirt.webp";
-import oversized from "../../assets/categories/oversized.webp";
-import polo from "../../assets/categories/polo.webp";
-import hoodie from "../../assets/categories/hoodie.webp";
+import ProductCard from "../ProductCard/ProductCard";
+import { useGetNewArrivalsQuery } from "../../redux/services/productService";
+import { useSelector } from "react-redux";
+import CartSidebar from "../layout/CartSidebar"; // Import CartSidebar
 
-export default function NewArraivals() {
+export default function NewArrivals() {
   const { theme } = useTheme();
+  const { data: newArrivalsData, isLoading, error } = useGetNewArrivalsQuery();
+  
+  // Get user role from Redux store
+  const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role;
+  const isWholesaleUser = userRole === 'WHOLESALER';
 
-  const products = [
-    {
-      id: 1,
-      title: "FREE SNAP HOOD",
-      category: "Outerwear",
-      price: "₹161.29",
-      image:
-        tshirt,
-    },
-    {
-      id: 2,
-      title: "COLLAR WOOL JACKET",
-      category: "Sneakers",
-      price: "₹165.58",
-      image:
-        oversized,
-    },
-    {
-      id: 3,
-      title: "EASE BOMBER VEST",
-      category: "Uncategorized",
-      price: "₹162.32",
-      image:
-        polo,
-    },
-    {
-      id: 4,
-      title: "DENSE SWEAT",
-      category: "Accessories",
-      price: "₹146.43",
-      image:
-        hoodie,
-    },
-  ];
+  // Cart sidebar state
+  const [showCartSidebar, setShowCartSidebar] = useState(false);
 
   // Dynamic styles based on theme
   const isDark = theme === "dark";
@@ -49,44 +23,196 @@ export default function NewArraivals() {
   const textColor = isDark ? "text-white" : "text-black";
   const subText = isDark ? "text-gray-400" : "text-gray-600";
 
+  // Cart update handler
+  const handleCartUpdate = () => {
+    setShowCartSidebar(true);
+  };
+
+  // Transform API data to match ProductCard component structure (same as Shop component)
+  const transformProductData = (apiProduct) => {
+    if (!apiProduct) return null;
+    
+
+    // Get the first variant's primary image
+    const primaryVariant = apiProduct.variants?.[0];
+    const primaryImage = primaryVariant?.variantImages?.find(img => img.isPrimary)?.imageUrl || 
+                        primaryVariant?.variantImages?.[0]?.imageUrl;
+    
+    // Calculate if product is in stock (any variant has stock > 0)
+    const hasStock = apiProduct.variants?.some(variant => {
+      return variant.stock > 0;
+    }) || false;
+    
+    
+    // Format price with currency symbol
+    const formatPrice = (price) => {
+      if (price === undefined || price === null) return "₹0";
+      return `₹${price}`;
+    };
+
+    // Determine which price to show based on user role
+    let displayPrice;
+    let originalPrice;
+    let priceLabel = "";
+
+    if (isWholesaleUser && apiProduct.wholesalePrice) {
+      // Show wholesale price for wholesale users
+      displayPrice = formatPrice(apiProduct.wholesalePrice);
+      originalPrice = apiProduct.offerPrice || apiProduct.normalPrice;
+      priceLabel = "Wholesale";
+    } else if (apiProduct.offerPrice && apiProduct.offerPrice < apiProduct.normalPrice) {
+      // Show offer price for retail users when there's a discount
+      displayPrice = formatPrice(apiProduct.offerPrice);
+      originalPrice = apiProduct.normalPrice;
+      priceLabel = "Offer";
+    } else {
+      // Show normal price
+      displayPrice = formatPrice(apiProduct.normalPrice);
+      originalPrice = null;
+      priceLabel = "";
+    }
+
+    return {
+      id: apiProduct.id || apiProduct._id,
+      title: apiProduct.name || apiProduct.title || "Unnamed Product",
+      category: apiProduct.category?.name || apiProduct.category || "Uncategorized",
+      price: displayPrice,
+      originalPrice: originalPrice,
+      priceLabel: priceLabel,
+      image: primaryImage,
+      // Pass the actual variants array to ProductCard
+      variants: apiProduct.variants || [],
+      // Use hasStock instead of inStock
+      inStock: hasStock,
+      // Additional price data for different user types
+      normalPrice: apiProduct.normalPrice,
+      offerPrice: apiProduct.offerPrice,
+      wholesalePrice: apiProduct.wholesalePrice,
+      avgRating: apiProduct.avgRating || 0,
+      totalRatings: apiProduct.totalRatings || 0,
+      // User role info for conditional rendering
+      isWholesaleUser: isWholesaleUser,
+      // Product flags
+      isFeatured: apiProduct.featured || false,
+      isNewArrival: apiProduct.isNewArrival || false,
+      isBestSeller: apiProduct.isBestSeller || false
+    };
+  };
+
+  // Handle different possible response structures (same as Shop component)
+  let productsArray = [];
+  if (newArrivalsData) {
+    if (Array.isArray(newArrivalsData)) {
+      productsArray = newArrivalsData;
+    } else if (newArrivalsData.data && Array.isArray(newArrivalsData.data.products)) {
+      productsArray = newArrivalsData.data.products;
+    } else if (newArrivalsData.data && Array.isArray(newArrivalsData.data)) {
+      productsArray = newArrivalsData.data;
+    } else if (newArrivalsData.products && Array.isArray(newArrivalsData.products)) {
+      productsArray = newArrivalsData.products;
+    } else if (newArrivalsData.success && Array.isArray(newArrivalsData.data)) {
+      productsArray = newArrivalsData.data;
+    }
+  }
+
+  const transformedProducts = productsArray
+    .map(transformProductData)
+    .filter(product => product !== null);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <section className={`py-12 transition-colors duration-500 ${bgColor}`}>
+        {/* Title */}
+        <div className="text-center mb-10">
+          <h2 className={`text-4xl md:text-5xl font-italiana tracking-widest font-bold ${textColor}`}>
+            NEW ARRIVALS
+          </h2>
+          <div className="w-40 h-[2px] bg-red-500 mx-auto mt-2"></div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-6 md:px-16">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="bg-gray-300 rounded-lg aspect-square"></div>
+              <div className="mt-2 space-y-2">
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className={`py-12 transition-colors duration-500 ${bgColor}`}>
+        {/* Title */}
+        <div className="text-center mb-10">
+          <h2 className={`text-4xl md:text-5xl font-italiana tracking-widest font-bold ${textColor}`}>
+            NEW ARRIVALS
+          </h2>
+          <div className="w-40 h-[2px] bg-red-500 mx-auto mt-2"></div>
+        </div>
+        <div className="text-center">
+          <p className={`${textColor} text-lg`}>
+            Failed to load new arrivals. Please try again later.
+          </p>
+          <p className={`${subText} text-sm mt-2`}>
+            Error: {error.message || "Unknown error"}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section
-      className={`py-12 transition-colors duration-500 ${bgColor}`}
-    >
+    <section className={`py-12 transition-colors duration-500 ${bgColor}`}>
       {/* Title */}
       <div className="text-center mb-10">
         <h2 className={`text-4xl md:text-5xl font-italiana tracking-widest font-bold ${textColor}`}>
           NEW ARRIVALS
         </h2>
         <div className="w-40 h-[2px] bg-red-500 mx-auto mt-2"></div>
+        {isWholesaleUser && (
+          <p className={`${textColor} mt-2 text-sm bg-blue-100 dark:bg-blue-900 inline-block px-4 py-2 rounded-full`}>
+            🏷️ Special wholesale prices for you!
+          </p>
+        )}
       </div>
+
+
 
       {/* Product Grid */}
-      <div className="grid cursor-pointer grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-6 md:px-16">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className={`flex flex-col shadow-2xl  px-5 py-3 ${theme === "dark" ? "shadow-gray-800" : ""} items-start text-left group`}
-          >
-            {/* Product Image */}
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full aspect-square object-cover transform group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+      {transformedProducts.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-6 md:px-16">
+          {transformedProducts.map((product) => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onCartUpdate={handleCartUpdate} // Pass the cart update handler
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center">
+          <p className={`${textColor} text-lg`}>
+            No new arrivals found at the moment.
+          </p>
+          <p className={`${subText} text-sm mt-2`}>
+            Check back later for new arrivals.
+          </p>
+        </div>
+      )}
 
-            {/* Text Content */}
-            <p className={`${subText} font-instrument text-sm mt-2`}>In Stock</p>
-            <h3 className={`${textColor} font-italiana tracking-widest font-semibold text-base lg:text-lg mt-1`}>
-              {product.title}
-            </h3>
-            <p className={`${subText} text-sm font-instrument mt-1`}>{product.category}</p>
-            <p className={`${textColor} font-medium font-instrument tracking-widest mt-1`}>{product.price}</p>
-          </div>
-        ))}
-      </div>
+      {/* Cart Sidebar */}
+      <CartSidebar 
+        isOpen={showCartSidebar} 
+        onClose={() => setShowCartSidebar(false)} 
+      />
     </section>
   );
 }

@@ -23,7 +23,6 @@ const authSlice = createSlice({
     setCredentials: (state, action) => {
       let user, token;
       
-      console.log('setCredentials payload:', action.payload);
       
       // Handle different response structures
       if (action.payload.data && action.payload.data.accessToken) {
@@ -60,7 +59,6 @@ const authSlice = createSlice({
         localStorage.setItem('token', token);
         localStorage.setItem('userData', JSON.stringify(user));
         
-        console.log('Credentials set successfully:', { user: user.name, role: user.role });
       } else {
         console.error('Invalid credentials payload:', action.payload);
         state.loading = false;

@@ -70,6 +70,10 @@ import AdminSliders from "../pages/Dashboard/Admin/sliders/AdminSliders";
 import AddSlider from "../pages/Dashboard/Admin/sliders/AddSlider";
 import ViewSlider from "../pages/Dashboard/Admin/sliders/ViewSlider";
 import Analytics from "../pages/Dashboard/Admin/Analytics";
+import ViewOrder from "../pages/Dashboard/Admin/orders/ViewOrder";
+import Wishlist from "../pages/general/wishlist";
+import CartSidebar from "../components/layout/CartSidebar";
+import ProductDetailsPage from "../pages/general/ProductDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -105,12 +109,23 @@ export const router = createBrowserRouter([
       {
         path: "/product/:productId",
         element: <ProductDetails />
+      },   
+      {
+        path: "/wishlist",
+        element: <Wishlist />
       },
       {
-        path: "/cart",
-        element: <Cart />
+        path: "/collections/:productSlug",
+        element: <ProductDetailsPage />
       },
-
+        {
+    path: "/checkout",
+    element: (
+      <ProtectedRoute allowedRoles={['CUSTOMER', 'WHOLESALER']}>
+        <Checkout />
+      </ProtectedRoute>
+    )
+  },
       // Authentication Routes
       {
         path: "/login",
@@ -138,7 +153,14 @@ export const router = createBrowserRouter([
       },
     ]
   },
-
+  {
+        path: "wholesaler/dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={['WHOLESALER']}>
+            <WholesalerDashboard />
+          </ProtectedRoute>
+        )
+    },
   {
     path: "/dashboard",
     element: <DashboardLayout />, // Remove ProtectedRoute wrapper
@@ -311,7 +333,6 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-
       {
         path: "sliders",
         element: (
@@ -349,6 +370,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminOrders />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "orders/view/:orderId",
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <ViewOrder />
           </ProtectedRoute>
         )
       },
@@ -434,14 +463,7 @@ export const router = createBrowserRouter([
       },
 
       // Wholesaler Routes
-      {
-        path: "wholesaler",
-        element: (
-          <ProtectedRoute allowedRoles={['WHOLESALER']}>
-            <WholesalerDashboard />
-          </ProtectedRoute>
-        )
-      },
+
       {
         path: "wholesaler/products",
         element: (
@@ -460,10 +482,13 @@ export const router = createBrowserRouter([
       },
 
       // User Routes
-      {
+
+    ]
+  },
+    {
         path: "user",
         element: (
-          <ProtectedRoute allowedRoles={['USER']}>
+          <ProtectedRoute allowedRoles={['CUSTOMER']}>
             <UserDashboard />
           </ProtectedRoute>
         )
@@ -471,7 +496,7 @@ export const router = createBrowserRouter([
       {
         path: "user/orders",
         element: (
-          <ProtectedRoute allowedRoles={['USER']}>
+          <ProtectedRoute allowedRoles={['CUSTOMER']}>
             <UserOrders />
           </ProtectedRoute>
         )
@@ -479,7 +504,7 @@ export const router = createBrowserRouter([
       {
         path: "user/profile",
         element: (
-          <ProtectedRoute allowedRoles={['USER']}>
+          <ProtectedRoute allowedRoles={['CUSTOMER']}>
             <UserProfile />
           </ProtectedRoute>
         )
@@ -487,29 +512,17 @@ export const router = createBrowserRouter([
       {
         path: "user/wishlist",
         element: (
-          <ProtectedRoute allowedRoles={['USER']}>
+          <ProtectedRoute allowedRoles={['CUSTOMER']}>
             <UserWishlist />
           </ProtectedRoute>
         )
       },
-    ]
-  },
-
-  // Checkout Protected Route
-  {
-    path: "/checkout",
-    element: (
-      <ProtectedRoute allowedRoles={['USER', 'WHOLESALER']}>
-        <Checkout />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/order-success",
-    element: (
-      <ProtectedRoute allowedRoles={['USER', 'WHOLESALER']}>
-        <OrderSuccess />
-      </ProtectedRoute>
-    )
-  }
+    {
+      path: "/order-success",
+      element: (
+        <ProtectedRoute allowedRoles={['CUSTOMER', 'WHOLESALER']}>
+          <OrderSuccess />
+        </ProtectedRoute>
+      )
+    }
 ]);

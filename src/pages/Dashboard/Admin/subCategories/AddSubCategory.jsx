@@ -184,7 +184,6 @@ const AddSubCategory = () => {
         image: image
       };
 
-      console.log('Submitting subcategory data:', subcategoryData); // For debugging
 
       await createSubcategory(subcategoryData).unwrap();
       

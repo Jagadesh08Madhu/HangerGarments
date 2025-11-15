@@ -470,11 +470,6 @@ const EditProduct = () => {
         formData.append('variantColors', JSON.stringify(variantColorsArray));
       }
 
-      console.log('=== UPDATE PRODUCT DATA ===');
-      console.log('Product:', productForm);
-      console.log('Variants:', variantsData);
-      console.log('Total new images:', Object.values(variants).reduce((sum, data) => sum + data.images.length, 0));
-      console.log('Variant colors array:', variantColorsArray);
 
       // Use Redux mutation to update product
       const response = await updateProduct({

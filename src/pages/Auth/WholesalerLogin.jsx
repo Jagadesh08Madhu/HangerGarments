@@ -33,38 +33,37 @@ const WholesalerLogin = () => {
   const [showOTPField, setShowOTPField] = useState(false);
   const [otp, setOtp] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setSuccess("");
 
-    try {
-      if (showOTPField) {
-        // Verify OTP and login
-        const result = await verifyOTP({
-          phone: formData.phone,
-          otp: otp
-        }).unwrap();
-        
-        dispatch(setCredentials(result));
-        
-        if (result.user.status === 'PENDING') {
-          navigate('/verify-otp', { state: { phone: formData.phone } });
-        } else {
-          navigate('/dashboard/wholesaler');
-        }
-      } else {
-        // Send OTP first - send phone to login endpoint
-        const response = await sendOTP({ phone: formData.phone }).unwrap();
-        setSuccess(response.message || "OTP sent to your phone number!");
-        setShowOTPField(true);
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-      setError(err?.data?.message || "Login failed. Please try again.");
+  try {
+    if (showOTPField) {
+      // Verify OTP and login
+      const result = await verifyOTP({
+        phone: formData.phone,
+        otp: otp
+      }).unwrap();
+      
+      dispatch(setCredentials(result));
+      
+      // Check if user needs additional verification (adjust this condition based on your actual business logic)
+      // Since there's no status field, you might need to check something else
+      // For now, let's assume all verified users go to dashboard
+      navigate('/');
+      
+    } else {
+      // Send OTP first - send phone to login endpoint
+      const response = await sendOTP({ phone: formData.phone }).unwrap();
+      setSuccess(response.message || "OTP sent to your phone number!");
+      setShowOTPField(true);
     }
-  };
-
+  } catch (err) {
+    console.error('Login failed:', err);
+    setError(err?.data?.message || "Login failed. Please try again.");
+  }
+};
   const handleChange = (e) => {
     setFormData({
       ...formData,

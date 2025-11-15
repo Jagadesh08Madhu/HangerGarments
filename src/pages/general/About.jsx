@@ -18,7 +18,7 @@ const About = () => {
 
   return (
     <section
-      className={`min-h-screen px-6 md:px-20 py-16 lg:py-12 pt-12 pb-16 ${bgColor} transition-all duration-500`}
+      className={`min-h-screen px-6 md:px-20 py-8 lg:py-8  pb-16 ${bgColor} transition-all duration-500`}
       id="about-us"
     >
       <motion.h2

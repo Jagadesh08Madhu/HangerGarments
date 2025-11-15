@@ -189,7 +189,6 @@ const AddSlider = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('🔑 Auth check:', { hasToken: !!token, userRole: user?.role });
     
     if (!validateForm()) {
       return;
@@ -218,11 +217,9 @@ const AddSlider = () => {
         sliderData.append('image', mainImage);
       }
 
-      console.log('📤 Submitting FormData with auth token:', !!token);
       
       const result = await createSlider(sliderData).unwrap();
       
-      console.log('✅ Success response:', result);
       
       // Reset form
       setFormData({

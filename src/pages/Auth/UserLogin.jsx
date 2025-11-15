@@ -118,7 +118,7 @@ const UserLogin = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className={`flex min-h-screen  transition-all duration-500 ${bg}`}
+      className={`flex min-h-screen transition-all duration-500 ${bg}`}
     >
       {/* Left side - Brand Section with Background Image */}
       <motion.div 

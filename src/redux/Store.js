@@ -6,6 +6,7 @@ import subcategoryReducer from './slices/subcategorySlice';
 import productReducer from './slices/productSlice';
 import orderReducer from './slices/orderSlice';
 import cartReducer from './slices/cartSlice';
+import wishlistReducer from './slices/wishlistSlice'; // Add this import
 import couponReducer from './slices/couponSlice';
 import ratingReducer from './slices/ratingSlice';
 import contactReducer from './slices/contactSlice';
@@ -22,6 +23,7 @@ const store = configureStore({
     product: productReducer,
     order: orderReducer,
     cart: cartReducer,
+    wishlist: wishlistReducer, // Add this line
     coupon: couponReducer,
     rating: ratingReducer,
     contact: contactReducer,

@@ -229,20 +229,6 @@ const WholesalerRegister = () => {
         });
       }
 
-      console.log('Submitting data:', {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        role: formData.role,
-        businessType: formData.businessType,
-        city: formData.city,
-        state: formData.state,
-        companyName: formData.companyName,
-        gstNumber: formData.gstNumber,
-        websiteUrl: formData.websiteUrl,
-        instagramUrl: formData.instagramUrl,
-        photoCount: shopPhotos.length
-      });
 
       const result = await register(submitData).unwrap();
       

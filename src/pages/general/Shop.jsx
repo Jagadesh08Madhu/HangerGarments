@@ -1,136 +1,244 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import tshirt from "../../assets/categories/tshirt.webp";
-import oversized from "../../assets/categories/oversized.webp";
-import polo from "../../assets/categories/polo.webp";
-import hoodie from "../../assets/categories/hoodie.webp";
-import acidwash from "../../assets/categories/acidwash.webp";
+import { useSelector } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
-
+import { useGetAllProductsQuery } from "../../redux/services/productService";
+import ProductCard from "../../components/ProductCard/ProductCard";
+import CartSidebar from "../../components/layout/CartSidebar";
 
 export default function Shop() {
   const { category } = useParams();
   const { theme } = useTheme();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  
+  // Get user role from Redux store
+  const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role;
+  const isWholesaleUser = userRole === 'WHOLESALER';
+
+  // Use RTK Query hook to fetch all products
+  const { data: productsData, isLoading, error } = useGetAllProductsQuery();
+  
+  // State for filtered products
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
 
-  // 🧩 Mock data (temporary preview)
-  const sampleData = [
-    {
-      id: 1,
-      name: "Men's Round Neck T-Shirt",
-      price: 499,
-      image: tshirt,
-      category: "men",
-    },
-    {
-      id: 2,
-      name: "Women's Oversized Tee",
-      price: 549,
-      image: oversized,     
-      category: "women",
-    },
-    {
-      id: 3,
-      name: "Classic Polo T-Shirt",
-      price: 699,
-      image: polo,
-      category: "men",
-    },
-    {
-      id: 4,
-      name: "Comfy Hoodie",
-      price: 999,
-      image: hoodie,
-      category: "unisex",
-    },
-    {
-      id: 5,
-      name: "Women's Crop Sweatshirt",
-      price: 799,
-      image: acidwash,
-      category: "women",
-    },
-  ];
+  const [showCartSidebar, setShowCartSidebar] = useState(false);
 
+
+
+  // Filter products based on category
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        // Simulate backend delay
-        await new Promise((r) => setTimeout(r, 1000));
-
-        // Instead of API, use filtered sampleData
-        const filtered =
-          category && category !== "all"
-            ? sampleData.filter(
-                (p) => p.category.toLowerCase() === category.toLowerCase()
-              )
-            : sampleData;
-
-        setProducts(filtered);
-      } catch (err) {
-        setError("Failed to load products.");
-      } finally {
-        setLoading(false);
+    if (productsData) {
+      
+      // Handle different possible response structures
+      let productsArray = [];
+      
+      if (Array.isArray(productsData)) {
+        // If response is directly an array
+        productsArray = productsData;
+      } else if (productsData.data && Array.isArray(productsData.data.products)) {
+        // If response has data.products property (your case)
+        productsArray = productsData.data.products;
+      } else if (productsData.data && Array.isArray(productsData.data)) {
+        // If response has data property that's an array
+        productsArray = productsData.data;
+      } else if (productsData.products && Array.isArray(productsData.products)) {
+        // If response has products property
+        productsArray = productsData.products;
+      } else if (productsData.success && Array.isArray(productsData.data)) {
+        // If response has success and data properties
+        productsArray = productsData.data;
       }
+      
+      
+      let filtered = productsArray;
+      
+      // Filter by category if specified
+      if (category && category !== "all") {
+        filtered = productsArray.filter((product) => {
+          const productCategory = product.category?.name;
+          if (!productCategory) return false;
+          
+          // Compare both in lowercase for case-insensitive matching
+          return productCategory.toLowerCase() === category.toLowerCase();
+        });
+      }
+      
+      setFilteredProducts(filtered);
+    }
+  }, [productsData, category]);
+
+  const handleCartUpdate = () => {
+    setShowCartSidebar(true);
+  };  
+
+  // Transform API data to match ProductCard component structure
+  const transformProductData = (apiProduct) => {
+    if (!apiProduct) return null;
+    
+    // Get the first variant's primary image
+    const primaryVariant = apiProduct.variants?.[0];
+    const primaryImage = primaryVariant?.variantImages?.find(img => img.isPrimary)?.imageUrl || 
+                        primaryVariant?.variantImages?.[0]?.imageUrl;
+    
+    // FIXED: Calculate if product is in stock (any variant has stock > 0)
+    const hasStock = apiProduct.variants?.some(variant => {
+      return variant.stock > 0;
+    }) || false;
+    
+
+    
+    // Format price with currency symbol
+    const formatPrice = (price) => {
+      if (price === undefined || price === null) return "₹0";
+      return `₹${price}`;
     };
 
-    fetchProducts();
-  }, [category]);
+    // Determine which price to show based on user role
+    let displayPrice;
+    let originalPrice;
+    let priceLabel = "";
+
+    if (isWholesaleUser && apiProduct.wholesalePrice) {
+      // Show wholesale price for wholesale users
+      displayPrice = formatPrice(apiProduct.wholesalePrice);
+      originalPrice = apiProduct.offerPrice || apiProduct.normalPrice;
+      priceLabel = "Wholesale";
+    } else if (apiProduct.offerPrice && apiProduct.offerPrice < apiProduct.normalPrice) {
+      // Show offer price for retail users when there's a discount
+      displayPrice = formatPrice(apiProduct.offerPrice);
+      originalPrice = apiProduct.normalPrice;
+      priceLabel = "Offer";
+    } else {
+      // Show normal price
+      displayPrice = formatPrice(apiProduct.normalPrice);
+      originalPrice = null;
+      priceLabel = "";
+    }
+
+    return {
+      id: apiProduct.id || apiProduct._id,
+      title: apiProduct.name || apiProduct.title || "Unnamed Product",
+      category: apiProduct.category?.name || apiProduct.category || "Uncategorized",
+      price: displayPrice,
+      originalPrice: originalPrice,
+      priceLabel: priceLabel,
+      image: primaryImage,
+      // FIXED: Pass the actual variants array to ProductCard
+      variants: apiProduct.variants || [],
+      // FIXED: Use hasStock instead of inStock
+      inStock: hasStock,
+      // Additional price data for different user types
+      normalPrice: apiProduct.normalPrice,
+      offerPrice: apiProduct.offerPrice,
+      wholesalePrice: apiProduct.wholesalePrice,
+      avgRating: apiProduct.avgRating || 0,
+      totalRatings: apiProduct.totalRatings || 0,
+      // User role info for conditional rendering
+      isWholesaleUser: isWholesaleUser,
+      // Product flags
+      isFeatured: apiProduct.featured || false,
+      isNewArrival: apiProduct.isNewArrival || false,
+      isBestSeller: apiProduct.isBestSeller || false
+    };
+  };
+
+  const transformedProducts = filteredProducts
+    .map(transformProductData)
+    .filter(product => product !== null);
 
   // 🎨 Theme-based colors
   const isDark = theme === "dark";
-  const bg = theme === "dark" ? "bg-black" : "bg-white";
-  const text = theme === "dark" ? "text-white" : "text-black";
+  const bg = isDark ? "bg-black" : "bg-white";
+  const text = isDark ? "text-white" : "text-black";
   const textColor = isDark ? "text-white" : "text-black";
-  // const cardBg = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
   const subText = isDark ? "text-gray-400" : "text-gray-600";
-  
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <section className={`pb-10 pt-12 px-6 min-h-screen transition-colors duration-500 ${bg} ${text}`}>
+        <h1 className="text-3xl font-bold font-italiana tracking-widest lg:text-5xl text-center mb-10 capitalize">
+          {category ? `${category}'s Collections` : "All Products"}
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[...Array(8)].map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="bg-gray-300 rounded-lg aspect-square"></div>
+              <div className="mt-2 space-y-2">
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className={`pb-10 pt-12 px-6 min-h-screen transition-colors duration-500 ${bg} ${text}`}>
+        <h1 className="text-3xl font-bold font-italiana tracking-widest lg:text-5xl text-center mb-10 capitalize">
+          {category ? `${category}'s Collections` : "All Products"}
+        </h1>
+        <div className="text-center">
+          <p className="text-red-500 text-lg">
+            Failed to load products. Please try again later.
+          </p>
+          <p className="text-gray-500 text-sm mt-2">
+            Error: {error.message || "Unknown error"}
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section
-      className={`pb-10 pt-12 px-6 min-h-screen transition-colors duration-500 ${bg} ${text}`}
-    >
+    <section className={`pb-10 pt-12 px-6 min-h-screen transition-colors duration-500 ${bg} ${text}`}>
       <h1 className="text-3xl font-bold font-italiana tracking-widest lg:text-5xl text-center mb-10 capitalize">
         {category ? `${category}'s Collections` : "All Products"}
       </h1>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading products...</p>
-      ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
-      ) : products.length === 0 ? (
-        <p className="text-center text-gray-500">No products found.</p>
-      ) : (
-        <div className="grid cursor-pointer grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className={`flex flex-col shadow-2xl  px-5 py-3 ${theme === "dark" ? "shadow-gray-800" : ""} items-start text-left group`}
-          >
-            {/* Product Image */}
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full aspect-square object-cover transform group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+      {isWholesaleUser && (
+        <div className="text-center mb-6">
+          <p className={`${textColor} text-sm bg-blue-100 dark:bg-blue-900 inline-block px-4 py-2 rounded-full`}>
+            🏷️ Special wholesale prices for you!
+          </p>
+        </div>
+      )}
 
-            {/* Text Content */}
-            <p className={`${subText} font-instrument text-sm mt-2`}>In Stock</p>
-            <h3 className={`${textColor} font-italiana tracking-widest font-semibold text-base lg:text-lg mt-1`}>
-              {product.title}
-            </h3>
-            <p className={`${subText} text-sm font-instrument mt-1`}>{product.category}</p>
-            <p className={`${textColor} font-medium font-instrument tracking-widest mt-1`}>{product.price}</p>
+      {transformedProducts.length === 0 ? (
+        <div className="text-center">
+          <p className="text-gray-500 text-lg mb-4">
+            No products found {category && category !== "all" ? `in ${category} category` : ""}.
+          </p>
+          <p className="text-gray-400 text-sm">
+            {productsData ? "Try checking another category or check if products exist." : "Products data is not available."}
+          </p>
+        </div>
+      ) : (
+        <>
+
+
+          {/* Product Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {transformedProducts.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onCartUpdate={handleCartUpdate}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+
+          <CartSidebar 
+          isOpen={showCartSidebar} 
+          onClose={() => setShowCartSidebar(false)} 
+        />
+        </>
       )}
     </section>
   );

@@ -7,6 +7,7 @@
     ],
     theme: {
       extend: {
+        
         colors: {
           "primary": "#ECE7F9",
         },

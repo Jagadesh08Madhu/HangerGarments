@@ -50,7 +50,6 @@ const AdminLogin = () => {
   // Handle login errors
   useEffect(() => {
     if (error) {
-      console.log('Login error:', error);
       
       let errorMessage = 'Admin login failed. Please try again.';
       
@@ -124,14 +123,11 @@ const AdminLogin = () => {
     }
     
     try {
-      console.log('Attempting admin login with:', { email: formData.email, role: formData.role });
       
       const result = await login(formData).unwrap();
-      console.log('Login successful:', result);
       
       // Check if the logged-in user is actually an admin
       const userRole = result.data?.user?.role || result.user?.role;
-      console.log('User role:', userRole);
       
       if (userRole !== 'ADMIN') {
         const errorMsg = 'Access denied. Admin privileges required.';
@@ -145,7 +141,6 @@ const AdminLogin = () => {
       
       // Redirect to admin dashboard
       const from = location.state?.from?.pathname || '/dashboard/admin';
-      console.log('Redirecting to:', from);
       navigate(from, { replace: true });
       
     } catch (err) {

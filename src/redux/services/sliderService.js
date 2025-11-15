@@ -25,7 +25,6 @@ export const sliderService = apiSlice.injectEndpoints({
 
     createSlider: builder.mutation({
       query: (sliderData) => {
-        console.log('🔄 Sending FormData to API...');
         
         return {
           url: '/sliders',
@@ -38,17 +37,12 @@ export const sliderService = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
-          console.log('✅ Slider created successfully:', result);
           toast.success('Slider created successfully!');
         } catch (error) {
           console.error('❌ Slider creation failed:', error);
           
           // Enhanced error logging
-          console.log('Error details:', {
-            status: error.error?.status,
-            data: error.error?.data,
-            message: error.error?.data?.message
-          });
+
           
           let errorMessage = 'Failed to create slider';
           

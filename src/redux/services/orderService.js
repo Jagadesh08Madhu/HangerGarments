@@ -88,6 +88,22 @@ export const orderService = apiSlice.injectEndpoints({
       query: () => '/orders/admin/stats',
       providesTags: ['Order'],
     }),
+
+    deleteOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `/orders/admin/${orderId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Order'],
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success('Order deleted successfully!');
+        } catch (error) {
+          toast.error(error.error?.data?.message || 'Failed to delete order');
+        }
+      },
+    }),
   }),
 });
 
@@ -104,4 +120,5 @@ export const {
   useUpdateTrackingInfoMutation,
   useProcessRefundMutation,
   useGetOrderStatsQuery,
+  useDeleteOrderMutation
 } = orderService;

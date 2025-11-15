@@ -17,6 +17,7 @@ const MainLayout = () => {
 
   return (
     <div className='min-h-screen flex flex-col bg-white dark:bg-gray-900 smokey:bg-gray-800 transition-colors duration-300'> 
+    
        <AppHeader />
        <ScrollToTop />
        <main className='flex-1'>

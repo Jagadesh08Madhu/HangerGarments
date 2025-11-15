@@ -21,13 +21,6 @@ export const apiSlice = createApi({
   baseQuery: async (args, api, extraOptions) => {
     const result = await baseQuery(args, api, extraOptions);
     
-    // Log for debugging
-    console.log('API Call:', {
-      url: args.url,
-      method: args.method,
-      status: result.meta?.response?.status,
-      error: result.error
-    });
     
     return result;
   },
