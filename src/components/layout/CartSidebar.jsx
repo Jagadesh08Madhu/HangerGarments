@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
 import { removeFromCart, updateQuantity } from "../../redux/slices/cartSlice";
@@ -60,7 +60,7 @@ const handleProceedToBuy = () => {
 };
   const handleViewCart = () => {
     onClose();
-    navigate("/cart");
+    navigate("/");
   };
 
   const sidebarVariants = {
@@ -174,7 +174,7 @@ const handleProceedToBuy = () => {
                   </p>
                   
                   {/* Continue Shopping Button */}
-                  <button
+                  <Link to={'/shop'}
                     onClick={onClose}
                     className={`px-8 py-3 rounded-lg font-semibold transition-colors duration-200 ${
                       isDark 
@@ -183,7 +183,7 @@ const handleProceedToBuy = () => {
                     }`}
                   >
                     CONTINUE SHOPPING
-                  </button>
+                  </Link>
                 </div>
               ) : (
                 <div className="p-4 space-y-4">
