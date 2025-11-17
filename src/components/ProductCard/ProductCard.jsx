@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom"; // Add this import
 import { addToCart } from "../../redux/slices/cartSlice";
 import { addToWishlist, removeFromWishlist } from "../../redux/slices/wishlistSlice";
 import ProductImage from "./ProductImage";
@@ -8,7 +7,6 @@ import ProductInfo from "./ProductInfo";
 import ProductActions from "./ProductActions";
 import { useProductCardStyles } from "./styles";
 import VariantModal from "./VariantModal";
-import { generateProductSlug } from "../../utils/slugify"; // Import the utility
 
 const ProductCard = ({ product, onCartUpdate }) => {
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -20,15 +18,11 @@ const ProductCard = ({ product, onCartUpdate }) => {
   const user = useSelector((state) => state.auth.user);
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Add navigate hook
   
   const styles = useProductCardStyles();
   const availableVariants = product.variants?.filter(variant => variant.stock > 0) || [];
   const hasStock = availableVariants.length > 0;
   const isInWishlist = wishlistItems.some(item => item.product._id === product.id);
-
-  // Generate product slug for URL
-  const productSlug = generateProductSlug(product);
 
   const getProductImage = () => {
     const firstVariant = product.variants?.[0];
@@ -36,33 +30,6 @@ const ProductCard = ({ product, onCartUpdate }) => {
       return firstVariant.variantImages[0].imageUrl;
     }
     return "https://via.placeholder.com/300x300?text=No+Image";
-  };
-
-  // Handle card click to navigate to product details
-  const handleCardClick = (e) => {
-    // Prevent navigation if clicking on interactive elements
-    if (
-      e.target.closest('button') || 
-      e.target.closest('.wishlist-btn') ||
-      e.target.closest('.add-to-cart-btn') ||
-      e.target.closest('.variant-selector')
-    ) {
-      return;
-    }
-    
-    navigate(`/collections/${productSlug}`);
-  };
-
-  // Handle wishlist click specifically
-  const handleWishlistClick = (e) => {
-    e.stopPropagation(); // Prevent card click
-    handleWishlistToggle();
-  };
-
-  // Handle add to cart click
-  const handleAddToCartClick = (e) => {
-    e.stopPropagation(); // Prevent card click
-    setShowVariantModal(true);
   };
 
   const handleWishlistToggle = async () => {
@@ -160,10 +127,10 @@ const ProductCard = ({ product, onCartUpdate }) => {
     setQuantity(1);
   };
 
+
   return (
     <>
       <div
-        onClick={handleCardClick} // Add click handler to the entire card
         className={`flex flex-col shadow-2xl px-5 py-3 rounded-xl ${styles.cardBg} ${
           styles.theme === "dark" ? "shadow-gray-800" : ""
         } items-start text-left group cursor-pointer relative transition-all duration-300 hover:shadow-xl`}
@@ -174,7 +141,7 @@ const ProductCard = ({ product, onCartUpdate }) => {
           isInWishlist={isInWishlist}
           user={user}
           togglingWishlist={togglingWishlist}
-          onWishlistToggle={handleWishlistClick} // Use the new handler
+          onWishlistToggle={handleWishlistToggle}
         />
         
         <ProductInfo 
@@ -188,7 +155,7 @@ const ProductCard = ({ product, onCartUpdate }) => {
           hasStock={hasStock}
           availableVariants={availableVariants}
           addingToCart={addingToCart}
-          onAddToCart={handleAddToCartClick} // Use the new handler
+          onAddToCart={() => setShowVariantModal(true)}
           styles={styles}
         />
       </div>
